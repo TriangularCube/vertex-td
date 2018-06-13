@@ -1,5 +1,5 @@
 enum EditorButtonType{
-  None, Buildable, Lane, Entrance, Exit, Save, Load, Return
+  None, Buildable, Lane, Entrance, Exit, Link, ClearLink, Save, Load, Return
 }
   
 public class EditorButton{
@@ -10,6 +10,7 @@ public class EditorButton{
   String shortcut;
   
   boolean isHoveringOver = false;
+  boolean isSelected = false;
   
 	public EditorButton( int x, int y, int buttonWidth, int buttonHeight, EditorButtonType type, String shortcut ){
 
@@ -43,12 +44,16 @@ public class EditorButton{
     }
   }
   
-  public EditorButtonType MousePressed(){
-    if( isHoveringOver ){
-      return type;
-    }
-    return EditorButtonType.None;
-  }
+	public EditorButtonType MousePressed(){
+		if( isHoveringOver ){
+		  return type;
+		}
+		return EditorButtonType.None;
+	}
+	
+	public void Selected( boolean isSelected ){
+		this.isSelected = isSelected;
+	}
   
 	public EditorButtonType isShortcutPressed( char pressed ){
 		if( match( pressed + "", shortcut ) != null ){
@@ -66,19 +71,21 @@ public class EditorButton{
     
     // Selecting Color
     if( isHoveringOver ){
-      fill( #5BFABE, 192 );
+      fill( #5BFABE, 200 );
+    } else if( isSelected ){
+		fill( TILE_COLOR_SELECTED, 200 );
     } else {
-      fill( #5B7EFA, 192 );
+      fill( #5B7EFA, 200 );
     }
     
     rect( x, y, buttonWidth, buttonHeight );
     
     // Text Color
     if( isHoveringOver ){
-      fill( 0, 255 );
+		fill( 0, 200 );
     } else {
-      fill( #FFFFFF, 255 );
-    }
+		fill( #FFFFFF, 200 );
+	}
 	
 	// Common to all text
 	textAlign( CENTER, CENTER );
@@ -103,6 +110,14 @@ public class EditorButton{
 		case Exit:
 			text( "[F]", x + 10 + textWidth( "[F]" )/2, y - 2 + buttonHeight/2 ); 
 			text( "Exit", x + buttonWidth/2 + 20, y -2 + buttonHeight/2 );
+			break;
+		case Link:
+			text( "[X]", x + 10 + textWidth( "[X]" )/2, y - 2 + buttonHeight/2 ); 
+			text( "Link Mode", x + buttonWidth/2 + 20, y -2 + buttonHeight/2 );
+			break;
+		case ClearLink:	
+			text( "[C]", x + 10 + textWidth( "[C]" )/2, y - 2 + buttonHeight/2 ); 
+			text( "Clear Links", x + buttonWidth/2 + 20, y -2 + buttonHeight/2 );
 			break;
 		case Save:
 			text( "Save", x + buttonWidth/2, y + buttonHeight/2 );

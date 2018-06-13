@@ -116,6 +116,26 @@ void mousePressed(){
   }
 }
 
+void mouseDragged(){
+	
+	switch( state ){
+		case Editor:
+			editor.MouseDragged();
+			break;
+	}
+	
+}
+
+void mouseReleased(){
+	
+	switch( state ){
+		case Editor:
+			editor.MouseReleased();
+			break;
+	}
+	
+}
+
 void keyPressed(){
 	switch( state ){
 		case Editor:
