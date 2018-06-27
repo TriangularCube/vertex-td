@@ -6,6 +6,8 @@ public class Tile{
 	public int x, y;
 	public Terrain terrain;
 	public boolean isEntrance, isExit;
+	
+	public Tower tower;
 }
 
 public enum InvalidReason{
@@ -21,7 +23,7 @@ public class Level{
 	//public ArrayList<Tile> entrances = new ArrayList<Tile>();
 	//public ArrayList<Tile> exits = new ArrayList<Tile>();
 	
-	public HashMap<Tile, ArrayList<Tile>> links = new HashMap<Tile, ArrayList<Tile>>();
+	public ArrayList<ArrayList<Tile>> links = new ArrayList<ArrayList<Tile>>();
 	
 	public Level(){
 		// DEBUG for now
@@ -98,7 +100,7 @@ public class Level{
 				
 			}
 			
-			links.put( linkArrayList.get( 0 ), linkArrayList );
+			links.add( linkArrayList );
 			
 		}
 		
@@ -109,21 +111,57 @@ public class Level{
 		for( int i = 0; i < LEVEL_SIZE_X; i++ ){
 			for( int j = 0; j < LEVEL_SIZE_Y; j++ ){
 				
-				if( terrain[i][j].isEntrance ){
-					fill( #65F232, 200 );
+				Tile t = terrain[i][j];
+				
+				if( t.isEntrance ){
+					fill( #65F232, 100 );
 					noStroke();
-				} else if ( terrain[i][j].isExit ){
-					fill( #F23232, 200 );
+				} else if ( t.isExit ){
+					fill( #F23232, 100 );
 					noStroke();
-				} else if( terrain[i][j].terrain == Terrain.Lane ){
+				} else if( t.terrain == Terrain.Lane ){
 					fill( TILE_COLOR_ROAD, TILE_COLOR_ROAD_ALPHA );
+					noStroke();
+				} else if( t.tower != null ){
+					fill( #07091E, 127 );
 					noStroke();
 				} else {
 					fill( TILE_COLOR_BUILDABLE, TILE_COLOR_BUILDABLE_ALPHA );
-					stroke( 0 );
+					stroke( 0, 72 );
 				}
 
 				rect( i * LEVEL_TILE_SIZE + offsetX, j * LEVEL_TILE_SIZE + offsetY, LEVEL_TILE_SIZE, LEVEL_TILE_SIZE );
+				
+				// Find adjacent tile, if it's a Lane, draw white line
+				if( terrain[i][j].terrain == Terrain.Buildable ){
+					stroke( #FFFFFF );
+					
+					// Left
+					if( i != 0 && terrain[ i - 1 ][j].terrain == Terrain.Lane ){
+						line( i * LEVEL_TILE_SIZE + offsetX, j * LEVEL_TILE_SIZE + offsetY, i * LEVEL_TILE_SIZE + offsetX, (j + 1) * LEVEL_TILE_SIZE + offsetY - 1 );
+					}
+					
+					// Right
+					if ( i != terrain.length - 1 && terrain[ i + 1 ][j].terrain == Terrain.Lane ){
+						line( (i + 1) * LEVEL_TILE_SIZE + offsetX - 1, j * LEVEL_TILE_SIZE + offsetY, (i + 1) * LEVEL_TILE_SIZE + offsetX - 1, (j + 1) * LEVEL_TILE_SIZE + offsetY - 1 );
+					}
+					
+					// Up
+					if( j != 0 && terrain[i][ j - 1 ].terrain == Terrain.Lane ){
+						line( i * LEVEL_TILE_SIZE + offsetX, j * LEVEL_TILE_SIZE + offsetY, (i + 1) * LEVEL_TILE_SIZE + offsetX - 1, j * LEVEL_TILE_SIZE + offsetY );
+					}
+					
+					// Down
+					if( j != terrain[i].length - 1 && terrain[i][ j + 1 ].terrain == Terrain.Lane ){
+						line( i * LEVEL_TILE_SIZE + offsetX - 1, (j + 1) * LEVEL_TILE_SIZE + offsetY - 1, (i + 1) * LEVEL_TILE_SIZE + offsetX - 1, (j + 1) * LEVEL_TILE_SIZE + offsetY - 1 );
+					}
+				}
+				
+				// Draw Towers
+				if( terrain[i][j].tower != null ){
+					terrain[i][j].tower.DrawTower( i * LEVEL_TILE_SIZE + offsetX, j * LEVEL_TILE_SIZE + offsetY );
+					terrain[i][j].tower.DrawLevel( i * LEVEL_TILE_SIZE + offsetX, j * LEVEL_TILE_SIZE + offsetY );
+				}
 				
 			}
 		}
@@ -207,11 +245,10 @@ public class Level{
 		lvlObject.setJSONArray( "terrain", terrainJSON );
 		
 		JSONArray allLinksArray = new JSONArray();
-		ArrayList<ArrayList<Tile>> linksInArray = new ArrayList<ArrayList<Tile>>( links.values() ); // Can't iterate over HashMap with any sort of clarity. Have to change it to ArrayList
 		
-		for( int i = 0; i < linksInArray.size(); i++ ){
+		for( int i = 0; i < links.size(); i++ ){
 			
-			ArrayList<Tile> link = linksInArray.get(i);
+			ArrayList<Tile> link = links.get(i);
 			JSONArray linkArray = new JSONArray();
 			
 			for( int j = 0; j < link.size(); j++ ){

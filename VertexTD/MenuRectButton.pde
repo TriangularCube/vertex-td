@@ -1,4 +1,8 @@
-public class MenuRectButton extends Button{
+enum MenuButtonCode{
+  None, StartGame, Editor, Exit
+}
+
+public class MenuRectButton{
   
   int x, y; // X, Y will be middle of Button
   int buttonWidth, buttonHeight;

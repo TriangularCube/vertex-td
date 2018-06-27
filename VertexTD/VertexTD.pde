@@ -1,16 +1,17 @@
 private enum GameState{
-  MainMenu, Level, Editor
+  MainMenu, Game, Editor
 }
 
 private GameState state;
 private PImage Background;
 
 private Editor editor;
+private Game game;
 
 void setup(){
   
   size( 1280, 800 );
-  frameRate( 30 );
+  frameRate( FRAME_RATE );
   
   state = GameState.MainMenu;
   
@@ -26,8 +27,8 @@ void draw(){
     case MainMenu:
       drawMainMenu();
       break;
-    case Level:
-      // TODO
+    case Game:
+      game.DrawGame();
       break;
     case Editor:
       editor.DrawEditor();
@@ -37,10 +38,6 @@ void draw(){
 }
 
 // Main Menu ------------------------------------------------------------
-enum MenuButtonCode{
-  None, StartGame, Editor, Exit
-}
-
 void PrepMenu(){
   // Menu will use Center aligned text
   textAlign( CENTER, CENTER );
@@ -92,7 +89,12 @@ void mousePressed(){
           case None:
             continue;
           case StartGame:
-            // TODO
+            selectInput( "Select a level to play", "StartGame", new File( sketchPath() + "/Levels/ " ) );
+			
+			// DEBUG
+			// game = new Game( new Level( loadJSONObject( new File( sketchPath() + "/Levels/Test" ) ) ) );
+			// state = GameState.Game;
+			
             break;
           case Editor:
             editor = new Editor();
@@ -110,10 +112,22 @@ void mousePressed(){
         state = GameState.MainMenu;
       }
       break;
-    case Level:
-      // TODO
+    case Game:
+      if( game.MousePressed() ){
+		game = null;
+		state = GameState.MainMenu;
+	  }
       break;
   }
+}
+
+void StartGame( File selected ){
+	if( selected == null ){
+		return;
+	}
+	
+	game = new Game( new Level( loadJSONObject( selected ) ) );
+	state = GameState.Game;
 }
 
 void mouseDragged(){
@@ -140,6 +154,9 @@ void keyPressed(){
 	switch( state ){
 		case Editor:
 			editor.KeyPressed();
+			break;
+		case Game:
+			game.KeyPressed();
 			break;
 	}
 }

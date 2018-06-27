@@ -6,9 +6,6 @@ public class Editor{
 	EditorButton selectedButton = null;
 	EditorButtonType selectedType = EditorButtonType.None;
 	
-	int offsetX = LEVEL_AREA_X + LEVEL_AREA_TILE_X_OFFSET;
-	int offsetY = LEVEL_AREA_Y + LEVEL_AREA_TILE_Y_OFFSET;
-	
 	boolean hasStartedEditing = false;
 	ArrayList<Tile> currentEditingLink;
 	
@@ -65,8 +62,10 @@ public class Editor{
     
 		background( background );
 		
+		// Game Name
 		fill( #FFFFFF, 255 );
 		stroke( 0 );
+		textSize( 25 );
 		text( currentLevel.name, LEVEL_AREA_WIDTH/2, 15 );
 		
 		// Workspace
@@ -74,7 +73,7 @@ public class Editor{
 		noStroke();
 		rect( LEVEL_AREA_X, LEVEL_AREA_Y, LEVEL_AREA_WIDTH, LEVEL_AREA_HEIGHT );
 		
-		currentLevel.DrawLevel( offsetX, offsetY );
+		currentLevel.DrawLevel( OFFSET_X, OFFSET_Y );
 		
 		// Moused Over Tile
 		fill( TILE_COLOR_SELECTED, 200 );
@@ -83,25 +82,25 @@ public class Editor{
 		Tile t = FindTile( mouseX, mouseY );
 		
 		if( t != null ){
-			rect( t.x * LEVEL_TILE_SIZE + offsetX, t.y * LEVEL_TILE_SIZE + offsetY, LEVEL_TILE_SIZE, LEVEL_TILE_SIZE );
+			rect( t.x * LEVEL_TILE_SIZE + OFFSET_X, t.y * LEVEL_TILE_SIZE + OFFSET_Y, LEVEL_TILE_SIZE, LEVEL_TILE_SIZE );
 		}
 		
 		// TODO draw start/end
 		
 		// Draw already connected links
-		for( ArrayList<Tile> link : currentLevel.links.values() ){
+		for( ArrayList<Tile> link : currentLevel.links ){
 			for( int i = 0; i < link.size(); i++ ){
 				t = link.get(i);
 				fill( #326CF2, 240 );
 				noStroke();
-				ellipse( t.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetX, t.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetY, 10, 10 );
+				ellipse( t.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_X, t.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_Y, 10, 10 );
 				
 				if( i != 0 ){
 					Tile last = link.get( i - 1 );
 					
 					stroke( #326CF2, 240 );
-					line( last.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetX, last.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetY,
-							t.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetX, t.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetY );
+					line( last.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_X, last.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_Y,
+							t.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_X, t.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_Y );
 				}
 			}
 		}
@@ -115,20 +114,20 @@ public class Editor{
 				
 				fill( #F24932, 240 );
 				noStroke();
-				ellipse( t.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetX, t.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetY, 10, 10 );
+				ellipse( t.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_X, t.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_Y, 10, 10 );
 				
 				if( i != 0 ){
 					Tile last = currentEditingLink.get( i - 1 );
 					
 					stroke( #F24932, 240 );
-					line( last.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetX, last.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetY,
-							t.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetX, t.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + offsetY );
+					line( last.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_X, last.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_Y,
+							t.x * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_X, t.y * LEVEL_TILE_SIZE + LEVEL_TILE_SIZE/2 + OFFSET_Y );
 				}
 			}
 			
 			if( selectedType == EditorButtonType.Link ){
 				// Draw to Mouse
-				t = FindTile( mouseX + offsetX, mouseY + offsetY );
+				t = FindTile( mouseX + OFFSET_X, mouseY + OFFSET_Y );
 				if( t != null ){
 					fill( #F24932, 240 );
 					noStroke();
@@ -136,8 +135,8 @@ public class Editor{
 					
 					stroke( #F24932, 240 );
 					line( mouseX, mouseY,
-						currentEditingLink.get( currentEditingLink.size() - 1 ).x * LEVEL_TILE_SIZE + offsetX + LEVEL_TILE_SIZE/2,
-						currentEditingLink.get( currentEditingLink.size() - 1 ).y * LEVEL_TILE_SIZE + offsetY + LEVEL_TILE_SIZE/2 );
+						currentEditingLink.get( currentEditingLink.size() - 1 ).x * LEVEL_TILE_SIZE + OFFSET_X + LEVEL_TILE_SIZE/2,
+						currentEditingLink.get( currentEditingLink.size() - 1 ).y * LEVEL_TILE_SIZE + OFFSET_Y + LEVEL_TILE_SIZE/2 );
 				}
 			}
 		}
@@ -160,15 +159,16 @@ public class Editor{
 	
 	private Tile FindTile( int x, int y ){	
 
-		if( x < offsetX || x >= offsetX + LEVEL_TILE_SIZE * LEVEL_SIZE_X ){
+		if( x < OFFSET_X || x >= OFFSET_X + LEVEL_TILE_SIZE * LEVEL_SIZE_X ){
 			return null;
 		}
 		
-		if( y< offsetY || y >= offsetY + LEVEL_TILE_SIZE * LEVEL_SIZE_Y ){
+		if( y< OFFSET_Y || y >= OFFSET_Y + LEVEL_TILE_SIZE * LEVEL_SIZE_Y ){
 			return null;
 		}
 		
-		return currentLevel.terrain[ floor( (x - offsetX) / LEVEL_TILE_SIZE ) ][ floor( (y - offsetY) / LEVEL_TILE_SIZE ) ];
+		return currentLevel.terrain[ floor( (x - OFFSET_X) / LEVEL_TILE_SIZE ) ][ floor( (y - OFFSET_Y) / LEVEL_TILE_SIZE ) ];
+		
 	}
   
 	public boolean MousePressed(){
@@ -176,38 +176,24 @@ public class Editor{
 		// For buttons
 		for( EditorButton button : buttons ){
 			
-			switch( button.MousePressed() ){
+			EditorButtonType pressed = button.MousePressed();
+			switch( pressed ){
 				case None:
 					continue;
 				case Return:
 					return true; // Can't hook up PApplet, so have to do this work around
-				case Buildable:
-					SelectedButton( EditorButtonType.Buildable, button );
-					break;
-				case Lane:
-					SelectedButton( EditorButtonType.Lane, button );
-					break;
-				case Entrance:
-					SelectedButton( EditorButtonType.Entrance, button );
-					break;
-				case Exit:
-					SelectedButton( EditorButtonType.Exit, button );
-					break;
-				case Link:
-					SelectedButton( EditorButtonType.Link, button );
-					break;
 				case ClearLink:
 					currentLevel.links.clear();
-					break;
+					return false;
 				case Save:
 					selectOutput( "Select save destination", "Save", new File( sketchPath() + "/Levels/ " ), this );
-					break;
+					return false;
 				case Load:
 					selectInput( "Select a level to load", "Load", new File( sketchPath() + "/Levels/ " ), this );
-					break;
+					return false;
 				default:
-					// TODO
-					break;
+					SelectedButton( pressed, button );
+					return false;
 			}
 		  
 		}
@@ -333,7 +319,13 @@ public class Editor{
 				}
 				
 				if( t.isEntrance ){
-					ArrayList<Tile> link = currentLevel.links.get( t );// Get the link from Level
+					ArrayList<Tile> link = null;// Get the link from Level
+					for( ArrayList<Tile> l : currentLevel.links ){
+						if( l.get( 0 ) == t ){
+							link = l;
+						}
+					}
+
 					if( link == null ){
 						link = new ArrayList<Tile>();// If there is no link for this entrance, make a new  one
 						link.add( t ); // Add the first element
@@ -370,7 +362,7 @@ public class Editor{
 						currentEditingLink.add( t );
 						
 						if( t.isExit ){
-							currentLevel.links.put( currentEditingLink.get( 0 ), currentEditingLink );
+							currentLevel.links.add( currentEditingLink );
 							currentEditingLink = null;
 						}
 					}
